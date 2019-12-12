@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import cvxpy as cp
 from heapq import nlargest
+
 def position_indexes(all_pos, all_points, df, idx, position):
     '''
     finding indexes in aggregate data of each player
@@ -25,7 +26,6 @@ def player_merge(df_players, df_games, df_player_info, df_salaries):
     
     return df_
 
-
 def player_points(row, 
            goal = 5, 
            assit_divisor = 1.7,
@@ -46,7 +46,7 @@ def player_points(row,
     shot_score = shot * row.shots
     blocks = block * row.blocked
     # counts face off wins and losses (losses = total - wins)
-    faceOffs = face * ( 2* row.faceOffWins - row.faceoffTaken)
+    faceOffs = face * ( 2 * row.faceOffWins - row.faceoffTaken)
     penalty = penaltymult * row.penaltyMinutes
     shortHanded = row.shortHandedGoals * short_hand * goal
     shortHanded = shortHanded + row.shortHandedAssists * goal/assit_divisor * short_hand
@@ -61,7 +61,8 @@ def goalie_points(row,
                   start_score = 8.66):
 
     '''
-    This function is to implement the custom scoring system for goalies
+    This function is to implement the custom scoring system for goalies. Goal_shifts is a 
+    dataframe to determine if a goalie started a game or not . 
     '''
     
     row = row.copy()
@@ -70,7 +71,7 @@ def goalie_points(row,
     goals_in = (row.shots - row.saves) * goal_against
     started = goal_shifts[(goal_shifts.game_id == row.game_id) &
                    (goal_shifts.player_id == row.player_id)]['shift_start'].values
-    if len(started) > 0:
+    if 0 in started:
         start = start_score
     else:
         start = 0
@@ -126,7 +127,7 @@ def optimize_choice(players, scores, df, g, taken, mine):
     largest = nlargest(len(players), indexes, key=lambda i: x.value[i])
     for i in range(len(largest)):
         pot = players[largest[i]]
-        print(pot, taken)
+       # print(pot, taken)
         if pot in taken:
             continue
         if pot in mine:
@@ -135,9 +136,6 @@ def optimize_choice(players, scores, df, g, taken, mine):
             mine.append(pot)
             taken.append(pot)
             return mine, taken, pot
-
-
-
 
 def optim_player(scores, 
                       taken, 
@@ -151,13 +149,14 @@ def optim_player(scores,
                       left_wingers,
                       sub_gamma = .5, 
                       selection = "max",
-                      max_salary = None,
+                      max_salary = False,
                       team_size = 17,
                       min_d = 4,
                       min_g = 2,
                       min_c = 2,
                       min_rw = 2,
-                      min_lw =2):
+                      min_lw =2,
+                      full_team = False):
     '''
     This function solves the binary linear programming problem 
     max(r^T x - gamma x^T Q x) where r is the average score per game for a player,
@@ -185,9 +184,9 @@ def optim_player(scores,
         constraints.append(x[mine[i]] == 1)
     # Add the salary constraint if we need to 
     if max_salary:
-         S = np.diag(df.groupby('player_id').max().Salary.tolist())/10000000
+        S = np.diag(df.groupby('player_id').max().Salary.tolist())/10000000
          # L1 norm here, absolute value is fine as no salaries should be negative.
-         constraints.append(cp.norm(S @ x, p=1) <= max_salary)
+        constraints.append(cp.norm(S @ x, p=1) <= max_salary)
     constraints = constraints + [cp.sum(x) == team_size,
                    cp.sum(x[defence]) >=min_d,
                    cp.sum(x[goalie]) >= min_g,
@@ -222,7 +221,11 @@ def optim_player(scores,
     # finding which indexes are non zero (within floating point)
     players = list(np.where(x.value.round(1) ==1)[0])
     new_players = [x for x in players if x not in mine]
-    
+    if full_team:
+        risk_data = cp.sqrt(risk).value
+        return_data = ret.value
+        return players, risk_data, return_data
+
     if selection == 'max':
        
         possible = np.take(np.array(scores.mean()), new_players)
@@ -230,7 +233,7 @@ def optim_player(scores,
 
         mine.append(to_take)
         taken.append(to_take)
-        #print(to_take)
+         # print('max', to_take)
         return mine, taken, to_take
     
     if selection == 'rms':
@@ -240,7 +243,7 @@ def optim_player(scores,
         possible = np.take(values_, new_players)
         to_take = list(values_).index(max(possible))
         #print(to_take)
-        print(to_take, "rms")
+       # print(to_take, "rms")
         mine.append(to_take)
         taken.append(to_take)
         
@@ -248,10 +251,8 @@ def optim_player(scores,
 
     if selection == 'optim':
          mine, taken, to_take = optimize_choice(players, scores, df, sub_gamma, taken, mine)
-         print(to_take, 'optim')
+         #print(to_take, 'optim')
          return mine, taken, to_take
-
-
 
 def greedy_competitor(all_points, 
                       taken, 
@@ -267,10 +268,9 @@ def greedy_competitor(all_points,
     required in each position"
     '''
     remaining_players = list(set(range(len(all_points.mean()))) - set(taken))
-    
     scores = np.take(np.array(all_points.mean()), remaining_players)
-   
     sorted_scores = sorted(scores, reverse=True)
+
     for i in range(len(scores)):
         pot_max = sorted_scores[i]
         pot_player = list(scores).index(sorted_scores[i])
@@ -341,8 +341,6 @@ def human(df,all_points, name, taken, mine):
         
     return mine, taken
 
-
-
 def draft(functions, order, team_size=17, **kwargs):
     '''  
     This function is to run a draft which decides on a team. The 'functions' argument
@@ -353,10 +351,13 @@ def draft(functions, order, team_size=17, **kwargs):
 
     greedy_selections = kwargs['greedy_selections']
     taken = []
-    # the teamsß
+    # the teams
     mine = [[] for i in range(len(functions))]
+    
     for i in range(team_size):
+        print("Beginning round", i)
         for j in order:
+            #print(j)
             if functions[j].__name__ == 'optim_player':
                 mine[j], taken, to_take = functions[j](scores=kwargs['scores'],
                                                        df=kwargs['df'],
@@ -373,6 +374,7 @@ def draft(functions, order, team_size=17, **kwargs):
             
             if functions[j].__name__ == 'greedy_competitor':
                 # only one greedy boi allowed atm
+                #print('greedy')
                 index_of_greed = j
                 greedy_selections, taken, chosen = functions[j](all_points=kwargs['scores'], 
                                                                 taken=taken,

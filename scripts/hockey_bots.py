@@ -353,7 +353,8 @@ def draft(functions, order, team_size=17, **kwargs):
     taken = []
     # the teams
     mine = [[] for i in range(len(functions))]
-    
+    df = kwargs['df']
+    all_points = kwargs['scores']
     for i in range(team_size):
         print("Beginning round", i)
         for j in order:
@@ -370,8 +371,15 @@ def draft(functions, order, team_size=17, **kwargs):
                                                        selection=kwargs['selection'][j],
                                                        right_wingers=kwargs['right_wingers'],
                                                        left_wingers=kwargs['left_wingers'],
-                                                       sub_gamma=kwargs['sub_gamma'][j],)
-            
+                                                       sub_gamma=kwargs['sub_gamma'][j])
+                print("Optim Player order ", j, " with")
+                print("Gamma = ", kwargs['gammaa'][j], "selection = ", kwargs['selection'][j])
+                
+                ohboy = df[df.player_id.isin(list(all_points.iloc[:,[to_take]]))]
+                playerids = ohboy.groupby('player_id').count().index
+                n = df[df.player_id.isin(playerids)][['firstName', 'lastName', 'primaryPosition']].drop_duplicates().values
+                print("Chose player: ", n[0][0], n[0][1], n[0][2])
+                print()
             if functions[j].__name__ == 'greedy_competitor':
                 # only one greedy boi allowed atm
                 #print('greedy')
@@ -384,7 +392,13 @@ def draft(functions, order, team_size=17, **kwargs):
                                                                 goalie=kwargs['goalie'],
                                                                 right_wingers=kwargs['right_wingers'],
                                                                 left_wingers=kwargs['left_wingers'])
-                
+                print("Greedy Player order ", j)
+                print(chosen)
+                ohboy = df[df.player_id.isin(list(all_points.iloc[:,[chosen]]))]
+                playerids = ohboy.groupby('player_id').count().index
+                n = df[df.player_id.isin(playerids)][['firstName', 'lastName', 'primaryPosition']].drop_duplicates().values
+                print("Chose player: ", n[0][0], n[0][1],n[0][2])
+                print()
             if functions[j].__name__ == 'human':
                 name = input("please select a player (type their name): ")
                 mine[j], taken = human(df = kwargs['df'],
@@ -392,6 +406,8 @@ def draft(functions, order, team_size=17, **kwargs):
                                        name=name, 
                                        taken=taken, 
                                        mine=mine[j])
+
+            
                 
         order = order[::-1]
     # gotta unwrap the dictionary 

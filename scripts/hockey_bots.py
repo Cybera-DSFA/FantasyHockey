@@ -22,7 +22,7 @@ def player_merge(df_players, df_games, df_player_info, df_salaries):
     df_['date_time'] = pd.to_datetime(df_['date_time'])
     
     df_ = pd.merge(df_, df_player_info[['player_id','firstName', 'lastName', 'primaryPosition']])
-    df_ = pd.merge(df_, df_salaries[['firstName', 'lastName', 'Salary']], on = ['firstName', 'lastName'])
+    # df_ = pd.merge(df_, df_salaries[['firstName', 'lastName', 'Salary']], on = ['firstName', 'lastName'])
     
     return df_
 
@@ -187,9 +187,11 @@ def optim_player(scores,
         S = np.diag(df.groupby('player_id').max().Salary.tolist())/10000000
          # L1 norm here, absolute value is fine as no salaries should be negative.
         constraints.append(cp.norm(S @ x, p=1) <= max_salary)
+    
     constraints = constraints + [cp.sum(x) == team_size,
                    cp.sum(x[defence]) >=min_d,
                    cp.sum(x[goalie]) >= min_g,
+                   cp.sum(x[goalie]) <= min_g + 1,
                    cp.sum(x[center]) >= min_c,
                    cp.sum(x[right_wingers]) >= min_rw,
                    cp.sum(x[left_wingers]) >= min_lw] 
@@ -278,7 +280,7 @@ def greedy_competitor(all_points,
             continue
         if pot_player in defence:
             trigger = 'defence'
-            if len(mine['defence']) < 4:
+            if len(mine['defence']) < 4 :
                 mine['defence'].append(pot_player)
                 taken.append(pot_player)
                 return mine, taken, pot_player
@@ -311,37 +313,57 @@ def greedy_competitor(all_points,
                 taken.append(pot_player)
                 return mine, taken, pot_player
         else:
+            # TODO: We need to fix this so it gets a full roster
             mine[trigger].append(pot_player)
             taken.append(pot_player)
             return mine, taken, pot_player
+def input_name():
+    while True:
+        name = input("Please enter player name ")
+        print(len(name.strip().split()))
+        if len(name.strip().split()) == 2:
+            print('chosing', name)
+            return name
+        else: 
+            print("incorrect name format, try again")
+            continue
             
-def human(df,all_points, name, taken, mine):
+            
+def human(df_, all_points, name, taken, mine):
     '''
     a function for manual entry and seletion of players 
     if competing against people
     '''
+    # in case there's a new player not in the optimization 
+    
     while True:
-        first, last = name.split(" ")
-        df = df[(df.firstName.str.contains(first, case=False)) & 
-                   (df.lastName.str.contains(last, case=False))]
+        first, last = name.strip().split(" ")
+        df = df_[(df_.firstName.str.contains(first, case=False)) & 
+                   (df_.lastName.str.contains(last, case=False))]
         
         if len(df.game_id) == 0:
-            name = input("please re-enter a correct name ")
+            print("empty data frame?", name)
+            if name == "ROOKIE OVERRIDE":
+                return mine, taken
+            else:
+                print("empty data frame? spelling mistake most likely")
+                name = input_name()
             continue
         else: 
             p = df['player_id'].unique()[0]
             df2 = all_points.mean().reset_index()
             player_index = list(df2[df2['player_id'] == p].index)[0]
             if player_index in taken:
-                name = input("player already taken, try someone else ")
+                print('player alread taken, try another')
+                name = input_name()
                 continue
             mine.append(player_index)
             taken.append(player_index)
             break
-        
+    print(mine, taken)
     return mine, taken
 
-def draft(functions, order, team_size=17, **kwargs):
+def draft(functions, order, team_size=17, pause = False, team_names = None,  **kwargs):
     '''  
     This function is to run a draft which decides on a team. The 'functions' argument
     is a list of functions (defined above) which can be used to simulate players, and 
@@ -359,6 +381,8 @@ def draft(functions, order, team_size=17, **kwargs):
         print("Beginning round", i)
         for j in order:
             #print(j)
+            if team_names:
+                print(team_names[j])
             if functions[j].__name__ == 'optim_player':
                 mine[j], taken, to_take = functions[j](scores=kwargs['scores'],
                                                        df=kwargs['df'],
@@ -380,6 +404,9 @@ def draft(functions, order, team_size=17, **kwargs):
                 n = df[df.player_id.isin(playerids)][['firstName', 'lastName', 'primaryPosition']].drop_duplicates().values
                 print("Chose player: ", n[0][0], n[0][1], n[0][2])
                 print()
+                if pause:
+                    input("Press enter to continue")
+
             if functions[j].__name__ == 'greedy_competitor':
                 # only one greedy boi allowed atm
                 #print('greedy')
@@ -400,20 +427,20 @@ def draft(functions, order, team_size=17, **kwargs):
                 print("Chose player: ", n[0][0], n[0][1],n[0][2])
                 print()
             if functions[j].__name__ == 'human':
-                name = input("please select a player (type their name): ")
-                mine[j], taken = human(df = kwargs['df'],
+                name = input_name()
+                mine[j], taken = human(df_ = kwargs['df'],
                                        all_points = kwargs['scores'], 
                                        name=name, 
                                        taken=taken, 
                                        mine=mine[j])
 
+
             
                 
         order = order[::-1]
     # gotta unwrap the dictionary 
-    print(mine[index_of_greed])
-    print(greedy_selections)
-    for key in greedy_selections:
-        mine[index_of_greed] += greedy_selections[key]
+    # if greedy_selections: 
+    # for key in greedy_selections:
+    #     mine[index_of_greed] += greedy_selections[key]
     
     return taken, mine

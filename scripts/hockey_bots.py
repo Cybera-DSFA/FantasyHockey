@@ -395,7 +395,8 @@ def draft(functions, order, team_size=17, pause = False, team_names = None,  **k
                                                        selection=kwargs['selection'][j],
                                                        right_wingers=kwargs['right_wingers'],
                                                        left_wingers=kwargs['left_wingers'],
-                                                       sub_gamma=kwargs['sub_gamma'][j])
+                                                       sub_gamma=kwargs['sub_gamma'][j],
+                                                       team_size = team_size)
                 print("Optim Player order ", j, " with")
                 print("Gamma = ", kwargs['gammaa'][j], "selection = ", kwargs['selection'][j])
                 

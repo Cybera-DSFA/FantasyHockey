@@ -86,7 +86,7 @@ def player_constraint(position, df, idx ):
     the name here may imply. Is this a bad naming convention? Yes. Should I change it? Also yes.
     Will I? Probably not. 
     '''
-    df_chose = df.groupby('player_id').max()
+    df_chose = df.groupby('player_id').first()
     df_chose = df_chose[df_chose.primaryPosition.str.contains(position)]
     return df_chose.index.tolist()
 

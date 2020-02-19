@@ -21,7 +21,7 @@ def player_merge(df_players, df_games, df_player_info, df_salaries):
     df_ = pd.merge(df_players, df_games[['game_id', 'date_time', 'type']])
     df_['date_time'] = pd.to_datetime(df_['date_time'])
     
-    df_ = pd.merge(df_, df_player_info[['player_id','firstName', 'lastName', 'primaryPosition']])
+    df_ = pd.merge(df_, df_player_info[['player_id','firstName', 'lastName', 'position']])
     # df_ = pd.merge(df_, df_salaries[['firstName', 'lastName', 'Salary']], on = ['firstName', 'lastName'])
     
     return df_
@@ -46,10 +46,11 @@ def player_points(row,
     shot_score = shot * row.shots
     blocks = block * row.blocked
     # counts face off wins and losses (losses = total - wins)
-    faceOffs = face * ( 2 * row.faceOffWins - row.faceoffTaken)
-    penalty = penaltymult * row.penaltyMinutes
+    faceOffs = 0 #face * ( 2 * row.faceOffWins - row.faceoffTaken)
+
+    penalty = penaltymult * float(row.penaltyMinutes)
     shortHanded = row.shortHandedGoals * short_hand * goal
-    shortHanded = shortHanded + row.shortHandedAssists * goal/assit_divisor * short_hand
+    # shortHanded = shortHanded + row.shortHandedAssists * goal/assit_divisor * short_hand
     
     return goals + ass_points + plus_minus + shot_score + blocks + faceOffs + shortHanded + penalty
 
@@ -68,15 +69,13 @@ def goalie_points(row,
     row = row.copy()
     save_points = row.saves * save
     ass_points = row.assists * assist
-    goals_in = (row.shots - row.saves) * goal_against
-    started = goal_shifts[(goal_shifts.game_id == row.game_id) &
-                   (goal_shifts.player_id == row.player_id)]['shift_start'].values
-    if 0 in started:
-        start = start_score
-    else:
-        start = 0
+    goals_in =  row.goalsAgainst
+    goals_in = goals_in * goal_against
+    #    goals_in = round((row.saves * (1 - row.savePercentage/100))) * goal_against
     
-    return save_points + ass_points + goals_in + start
+    
+    
+    return save_points + ass_points + goals_in + start_score * goal_shifts
 
 
 def player_constraint(position, df, idx ):
@@ -87,7 +86,7 @@ def player_constraint(position, df, idx ):
     Will I? Probably not. 
     '''
     df_chose = df.groupby('player_id').first()
-    df_chose = df_chose[df_chose.primaryPosition.str.contains(position)]
+    df_chose = df_chose[df_chose['position'].str.contains(position)]
     return df_chose.index.tolist()
 
 def salary_constraint(x, df, idx):
@@ -256,67 +255,8 @@ def optim_player(scores,
          #print(to_take, 'optim')
          return mine, taken, to_take
 
-def greedy_competitor(all_points, 
-                      taken, 
-                      mine, 
-                      defence,
-                      center,
-                      goalie,
-                      right_wingers,
-                      left_wingers):
-    '''
-    a function that simulates a player with the strategy of "always pick the player available
-    with the highest available returns, provided I have already found the minimum number of players
-    required in each position"
-    '''
-    remaining_players = list(set(range(len(all_points.mean()))) - set(taken))
-    scores = np.take(np.array(all_points.mean()), remaining_players)
-    sorted_scores = sorted(scores, reverse=True)
+ 
 
-    for i in range(len(scores)):
-        pot_max = sorted_scores[i]
-        pot_player = list(scores).index(sorted_scores[i])
-        if pot_player in taken:
-            continue
-        if pot_player in defence:
-            trigger = 'defence'
-            if len(mine['defence']) < 4 :
-                mine['defence'].append(pot_player)
-                taken.append(pot_player)
-                return mine, taken, pot_player
-       
-        if pot_player in center:
-            trigger = 'center'
-            if len(mine['center']) < 2:
-                mine['center'].append(pot_player)
-                taken.append(pot_player)
-                return mine, taken, pot_player
-            
-        if pot_player in goalie:
-            trigger = 'goalie'
-            if len(mine['goalie']) < 2:
-                mine['goalie'].append(pot_player)
-                taken.append(pot_player)
-                return mine, taken, pot_player
-            
-        if pot_player in right_wingers:
-            trigger = 'right_winger'
-            if len(mine['right_winger']) < 2:
-                mine['right_winger'].append(pot_player)
-                taken.append(pot_player)
-                return mine, taken, pot_player
-            
-        if pot_player in left_wingers:
-            trigger = 'left_winger'
-            if len(mine['left_winger']) < 2:
-                mine['left_winger'].append(pot_player)
-                taken.append(pot_player)
-                return mine, taken, pot_player
-        else:
-            # TODO: We need to fix this so it gets a full roster
-            mine[trigger].append(pot_player)
-            taken.append(pot_player)
-            return mine, taken, pot_player
 def input_name():
     while True:
         name = input("Please enter player name ")

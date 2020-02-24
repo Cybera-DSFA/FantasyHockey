@@ -277,11 +277,24 @@ def human(df_, all_points, name, taken, mine):
     # in case there's a new player not in the optimization 
     
     while True:
-        first, last = name.strip().split(" ")
-        df = df_[(df_.firstName.str.contains(first, case=False)) & 
-                   (df_.lastName.str.contains(last, case=False))]
+        n = name.strip().split(" ")
+        first, last = n
+        name = name.replace('.', '')
+        if len(n) > 2:
+            first = [0]
+            l = 0
+            for name in n[1:]:
+                if len(name) > l:
+                    last = name
+                    l = len(name)
+
+            name = first + " " + last
         
+        df = df_[(df_.fullName.str.contains(name, case=False))]
         if len(df.game_id) == 0:
+            df = df_[(df_.fullName.str.contains(last, case=False))]
+        if len(df.game_id) == 0:
+            return None
             print("empty data frame?", name)
             if name == "ROOKIE OVERRIDE":
                 return mine, taken
@@ -300,7 +313,7 @@ def human(df_, all_points, name, taken, mine):
             mine.append(player_index)
             taken.append(player_index)
             break
-    print(mine, taken)
+    # print(mine, taken)
     return mine, taken
 
 def draft(functions, order, team_size=17, pause = False, team_names = None,  **kwargs):

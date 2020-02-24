@@ -135,8 +135,6 @@ def game_fill(df):
                 if key not in safe_key:
                     fill_dict[key].extend([None])
             
-            
-            
     return pd.DataFrame(fill_dict)
 
 def score(row):

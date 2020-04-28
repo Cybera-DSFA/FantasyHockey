@@ -111,16 +111,16 @@ so we may reference them directly in algorithm (1) below.
 1. Choose a value for risk tolerance $\gamma$
 2. Decide on team size **_MAX_**
 3. **_WHILE $\alpha \neq$ MAX_**
-1. Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in O_c}$ of players which have been drafted
-    * Update constraint (5)
-2. Solve the maximization problem (3)
-    * Using some metric, choose a single player $\mathbf{x_i}$ from the solution of (3)
-    * Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in T_c}$ by adding the player we have chosen to our team
-3. Allow other actors to choose their players.
-3. **_IF $\alpha$ = MAX_**
-    * **END**
-3. **_Else_**
-    * $\alpha = \alpha + 1$, update constraint equation (5). 
+    1. Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in O_c}$ of players which have been drafted
+        * Update constraint (5)
+    2. Solve the maximization problem (3)
+        * Using some metric, choose a single player $\mathbf{x_i}$ from the solution of (3)
+        * Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in T_c}$ by adding the player we have chosen to our team
+    3. Allow other actors to choose their players.
+    3. **_IF $\alpha$ = MAX_**
+        * **END**
+    3. **_Else_**
+        * $\alpha = \alpha + 1$, update constraint equation (5). 
 ---
 
 Where algorithm 1 requires us to solve the optimization problem (3) **_MAX_** times. This may seem wasteful as we're only choosing a single player each time, why solve the entire problem and generate what is essentially a new team every time? 

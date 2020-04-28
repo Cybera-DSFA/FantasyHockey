@@ -91,7 +91,8 @@ so we may reference them directly in algorithm (1) below.
 1. Choose a value for risk tolerance <img src="/tex/11c596de17c342edeed29f489aa4b274.svg?invert_in_darkmode&sanitize=true" align=middle width=9.423880949999988pt height=14.15524440000002pt/>
 2. Decide on team size **_MAX_**
 3. **_WHILE <img src="/tex/c483334a8dd61243b9a3b9d78b730f6e.svg?invert_in_darkmode&sanitize=true" align=middle width=27.92803034999999pt height=22.831056599999986pt/> MAX_**
-    1. Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in O_c}$ of players which have been drafted
+    
+    Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in O_c}$ of players which have been drafted
         * Update constraint (5)
     2. Solve the maximization problem (3)
         * Using some metric, choose a single player $\mathbf{x_i}$ from the solution of (3)

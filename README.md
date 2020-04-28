@@ -91,17 +91,16 @@ so we may reference them directly in algorithm (1) below.
 1. Choose a value for risk tolerance <img src="/tex/11c596de17c342edeed29f489aa4b274.svg?invert_in_darkmode&sanitize=true" align=middle width=9.423880949999988pt height=14.15524440000002pt/>
 2. Decide on team size **_MAX_**
 3. **_WHILE <img src="/tex/c483334a8dd61243b9a3b9d78b730f6e.svg?invert_in_darkmode&sanitize=true" align=middle width=27.92803034999999pt height=22.831056599999986pt/> MAX_**
-    
-    Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in O_c}$ of players which have been drafted
-        * Update constraint (5)
-    2. Solve the maximization problem (3)
-        * Using some metric, choose a single player $\mathbf{x_i}$ from the solution of (3)
-        * Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in T_c}$ by adding the player we have chosen to our team
-    3. Allow other actors to choose their players.
-    3. **_IF $\alpha$ = MAX_**
-        * **END**
-    3. **_Else_**
-        * $\alpha = \alpha + 1$, update constraint equation (5). 
+1. Update the set <img src="/tex/4221397c8a5a02a9d784666f47094f17.svg?invert_in_darkmode&sanitize=true" align=middle width=68.74498784999999pt height=24.65753399999998pt/> of players which have been drafted
+    * Update constraint (5)
+2. Solve the maximization problem (3)
+    * Using some metric, choose a single player $\mathbf{x_i}$ from the solution of (3)
+    * Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in T_c}$ by adding the player we have chosen to our team
+3. Allow other actors to choose their players.
+3. **_IF <img src="/tex/c745b9b57c145ec5577b82542b2df546.svg?invert_in_darkmode&sanitize=true" align=middle width=10.57650494999999pt height=14.15524440000002pt/> = MAX_**
+    * **END**
+3. **_Else_**
+    * $\alpha = \alpha + 1$, update constraint equation (5). 
 ---
 
 Where algorithm 1 requires us to solve the optimization problem (3) **_MAX_** times. This may seem wasteful as we're only choosing a single player each time, why solve the entire problem and generate what is essentially a new team every time? 

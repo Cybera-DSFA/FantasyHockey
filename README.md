@@ -1,3 +1,10 @@
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js" integrity="sha384-9Nhn55MVVN0/4OFx7EE5kpFBPsEMZxKTCnA+4fqDmg12eCTqGi6+BB2LjY8brQxJ" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+</head>
+
+
 # FantasyHockey
 Location of our Fantasy Hockey draft code to teach data science.
 
@@ -96,7 +103,7 @@ $$\begin{aligned}
 
 Where here $T_c$ is the set of players in our team that we have already chosen, and must be a part of our team, and $O_c$ is the set of players chosen by others that we can no longer pick, and $\alpha$ is an integer representing the round of the draft we are in. Using for notational convenience, we will denote our new constraints 
 
-$$ \sum_{i \in T_c} \mathbf{x}_i = R \tag{4}$$
+$$ \sum_{i \in T_c} \mathbf{x}_i = \alpha \tag{4}$$
 $$ \sum_{i \in O_c} \mathbf{x}_i = 0 \tag{5}$$
 
 

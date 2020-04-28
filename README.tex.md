@@ -111,7 +111,8 @@ so we may reference them directly in algorithm (1) below.
 1. Choose a value for risk tolerance $\gamma$
 2. Decide on team size **_MAX_**
 3. **_WHILE $\alpha \neq$ MAX_**
-    1. Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in O_c}$ of players which have been drafted
+    
+    Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in O_c}$ of players which have been drafted
         * Update constraint (5)
     2. Solve the maximization problem (3)
         * Using some metric, choose a single player $\mathbf{x_i}$ from the solution of (3)

@@ -95,8 +95,8 @@ so we may reference them directly in algorithm (1) below.
 *   Update the set <img src="/tex/4221397c8a5a02a9d784666f47094f17.svg?invert_in_darkmode&sanitize=true" align=middle width=68.74498784999999pt height=24.65753399999998pt/> of players which have been drafted
     * Update constraint (5)
 *   Solve the maximization problem (3)
-    * Using some metric, choose a single player $\mathbf{x_i}$ from the solution of (3)
-    * Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in T_c}$ by adding the player we have chosen to our team
+* Using some metric, choose a single player <img src="/tex/a9181dcbb0c785f87c807a62fbca43d5.svg?invert_in_darkmode&sanitize=true" align=middle width=14.15517674999999pt height=14.611878600000017pt/> from the solution of (3)
+* Update the set <img src="/tex/37333fbdc33aa49b7a5c0fb483c5d522.svg?invert_in_darkmode&sanitize=true" align=middle width=66.51064694999998pt height=24.65753399999998pt/> by adding the player we have chosen to our team
 * Allow other actors to choose their players.
 
 **_IF <img src="/tex/c745b9b57c145ec5577b82542b2df546.svg?invert_in_darkmode&sanitize=true" align=middle width=10.57650494999999pt height=14.15524440000002pt/> = MAX_**

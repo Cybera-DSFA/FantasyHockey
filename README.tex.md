@@ -115,8 +115,8 @@ so we may reference them directly in algorithm (1) below.
 *   Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in O_c}$ of players which have been drafted
     * Update constraint (5)
 *   Solve the maximization problem (3)
-    * Using some metric, choose a single player $\mathbf{x_i}$ from the solution of (3)
-    * Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in T_c}$ by adding the player we have chosen to our team
+* Using some metric, choose a single player $\mathbf{x_i}$ from the solution of (3)
+* Update the set $\left\{\mathbf{x}_i\right\}_{x_i \in T_c}$ by adding the player we have chosen to our team
 * Allow other actors to choose their players.
 
 **_IF $\alpha$ = MAX_**

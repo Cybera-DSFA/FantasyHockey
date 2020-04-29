@@ -24,7 +24,7 @@ In this repository we make use of [Markowitz Portfolio Theory](https://www.math.
 
 Markowitz portfolio theory defines the optimal portfolio to be the solution to 
 
-$$ \max_{\mathbf{x}} \;\; \mathbf{r}^T \mathbf{x} - \gamma \mathbf{x}^T \mathbf{Q} \mathbf{x},  \tag {1}$$
+$$ \max_{\mathbf{x}} \;\; \mathbf{r}^T \mathbf{x} - \gamma \mathbf{x}^T \mathbf{Q} \mathbf{x},  \;\;\;\;\;\;\;(1)$$
 
 where $\mathbf{r}$ is the returns vector, $\mathbf{x}$ is the total set of assets, and $\mathbf{Q}$ is the covariance matrix of returns, and $\gamma$ is the "risk aversion constant" - a parameter that represents how much risk we are willing to accept. A $\gamma$ value of 0 would say that we do not tolerate any risk, and large values of $\gamma$ imply that we're willing to ["risk it to get the the biscuit"](https://www.youtube.com/watch?v=jz9uqs_IydY) In the context of finding the optimal portfolio of hockey players to make the fantasy hockey team - the returns $\mathbf{r}$ are measured in our expectation of how many points we expect particular player to get in a given game, and the covariance matrix $\mathbf{Q}$ is the covariance of all these expected points. As well, the vector $\mathbf{x}$ is the set of players which maximize our expected returns (fantasy points). 
 
@@ -51,7 +51,7 @@ $$\begin{aligned}
  & \;\; \sum_{i \in \text{D}} \mathbf{x_i} \geq 4 \\
  & \;\; \sum_{i \in \text{T}} \mathbf{x_i} = 17 \\
  & \;\; \mathbf{x} \in \left\{0 , 1 \right\}^n.
- \end{aligned} \tag {2}$$
+ \end{aligned} \;\;\;\;\;\;\; (2)$$
  
 
  Here it is important to note that our final constraint in equation 2 denotes that the elements of our player vector $\mathbf{x}$ are binary - meaning we can either have a player or we cannot, and $n$ is the size of this vector - the number of players in the NHL. With this in mind, the other constraints are a statement that say that we must chose the non-zero components of our player vector such that the sums of those elements which represent a player in those positions must satisfy the above conditions. Equation 2 represents what is known as a [binary integer programing](http://web.mit.edu/15.053/www/AMP-Chapter-09.pdf) problem. Methodologies to solve questions of this nature will be discussed at length in later sections of this document, but for now, let us trust that solvers for this class of problem exists, and that we can implement them easily.
@@ -94,12 +94,12 @@ $$\begin{aligned}
  & \;\; \mathbf{x} \in \left\{0 , 1 \right\}^n \\
  & \;\; \sum_{i \in T_c} \mathbf{x}_i = \alpha \\
  & \;\; \sum_{i \in O_c} \mathbf{x}_i = 0.
- \end{aligned} \tag {3}$$
+ \end{aligned} \;\;\;\;\;\;\; (3)$$
 
 Where here $T_c$ is the set of players in our team that we have already chosen, and must be a part of our team, and $O_c$ is the set of players chosen by others that we can no longer pick, and $\alpha$ is an integer representing the round of the draft we are in. Using for notational convenience, we will denote our new constraints 
 
-$$ \sum_{i \in T_c} \mathbf{x}_i = \alpha \tag{4}$$
-$$ \sum_{i \in O_c} \mathbf{x}_i = 0 \tag{5}$$
+$$ \sum_{i \in T_c} \mathbf{x}_i = \alpha \;\;\;\;\;\;\; (4)$$ 
+$$ \sum_{i \in O_c} \mathbf{x}_i = 0 \;\;\;\;\;\;\; (5)$$
 
 
 so we may reference them directly in algorithm (1) below. 
@@ -110,7 +110,6 @@ so we may reference them directly in algorithm (1) below.
 
 1. Choose a value for risk tolerance $\gamma$
 2.  Decide on team size **_MAX_**
-
 3. **_WHILE $\alpha \neq$ MAX_ DO:**
     *   Update the set <img src="/tex/4221397c8a5a02a9d784666f47094f17.svg?invert_in_darkmode&sanitize=true" align=middle width=68.74498784999999pt height=24.65753399999998pt/> of players which have been drafted
         * Update constraint (5)

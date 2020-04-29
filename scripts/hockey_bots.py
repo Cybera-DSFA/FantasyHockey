@@ -86,7 +86,7 @@ def player_constraint(position, df, idx ):
     Will I? Probably not. 
     '''
     df_chose = df.groupby('player_id').first()
-    df_chose = df_chose[df_chose['position'].str.contains(position)]
+    df_chose = df_chose[df_chose['primaryPosition'].str.contains(position)]
     return df_chose.index.tolist()
 
 def salary_constraint(x, df, idx):

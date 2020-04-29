@@ -54,7 +54,7 @@ $$\begin{aligned}
  \end{aligned} \;\;\;\;\;\;\; (2)$$
  
 
- Here it is important to note that our final constraint in equation 2 denotes that the elements of our player vector $\mathbf{x}$ are binary - meaning we can either have a player or we cannot, and $n$ is the size of this vector - the number of players in the NHL. With this in mind, the other constraints are a statement that say that we must chose the non-zero components of our player vector such that the sums of those elements which represent a player in those positions must satisfy the above conditions. Equation 2 represents what is known as a [binary integer programing](http://web.mit.edu/15.053/www/AMP-Chapter-09.pdf) problem. Methodologies to solve questions of this nature will be discussed at length in later sections of this document, but for now, let us trust that solvers for this class of problem exists, and that we can implement them easily.
+ Here it is important to note that our final constraint in equation 2 denotes that the elements of our player vector $\mathbf{x}$ are binary - meaning we can either have a player or we cannot, and $n$ is the size of this vector - the number of players in the NHL. With this in mind, the other constraints are a statement that say that we must chose the non-zero components of our player vector such that the sums of those elements which represent a player in those positions must satisfy the above conditions. Equation 2 represents what is known as a [binary integer programing](http://web.mit.edu/15.053/www/AMP-Chapter-09.pdf) problem (of course, equation (1) and (2) are in quadratic form, but we will return to this later). Methodologies to solve questions of this nature will be discussed at length in later sections of this document, but for now, let us trust that solvers for this class of problem exists, and that we can implement them easily.
 
 What equation 2 represents is a formal statement that the solution to the maximization problem should yield an "optimal" team, up to some risk parameter, which should see the maximum returns with respect to fantasy points.
 
@@ -108,16 +108,15 @@ so we may reference them directly in algorithm (1) below.
 
 ---
 
-1. Choose a value for risk tolerance $\gamma$
-2.  Decide on team size **_MAX_**
-3. **_WHILE $\alpha \neq$ MAX_ DO:**
+ 1. Choose a value for risk tolerance $\gamma$
+ 2.  Decide on team size **_MAX_**
+ 3. **_WHILE $\alpha \neq$ MAX_ DO:**
     * Update the set <img src="/tex/4221397c8a5a02a9d784666f47094f17.svg?invert_in_darkmode&sanitize=true" align=middle width=68.74498784999999pt height=24.65753399999998pt/> of players which have been drafted
         * Update constraint (5)
     * Solve the maximization problem (3)
         * Using some metric, choose a single player <img src="/tex/a9181dcbb0c785f87c807a62fbca43d5.svg?invert_in_darkmode&sanitize=true" align=middle width=14.15517674999999pt height=14.611878600000017pt/> from the solution of (3)
     * Update the set <img src="/tex/37333fbdc33aa49b7a5c0fb483c5d522.svg?invert_in_darkmode&sanitize=true" align=middle width=66.51064694999998pt height=24.65753399999998pt/> by adding the player we have chosen to our team
     * Allow other actors to choose their players.
-
     * **_IF $\alpha$ = MAX_**
         * **END**
     * **_Else_**
@@ -131,6 +130,20 @@ The answer to that is not as straightforward as you may think, but primarily it 
 Of course, we notice in step 2 of the main loop of algorithm (1) we have left unspecified _how_ to choose the single player that we're keeping in this round of the draft. Of course, this is another one of those stages where we need to decide for ourselves how we may choose a single player to include in our team out of the entire optimal team we have in the entire process. That is discussed in the next section
 
 ### Choosing A Single Player
+
+There are many metrics by which we can choose a single player and add them to our teams set of players $T_C$ for each round of the draft, and not all of them are created equal but worth exploring. In fact, many of the fantasy teams we created for this project take advantage of different metrics with respect to their choosing criteria. For example, there are the two easiest choices for choosing a single player:
+
+1. Choose an available player $x_i$ whose average returns $r_i$ are highest from the solution of equation (3). 
+2. Choose an available player $x_i$ whose RMS of returns is highest from the solution of equation (3)
+
+These two options are the easiest to implement and worth exploring, however, with all the computational power at hand - we may also be interested in trying to optimize once again in order to find the best player to choose. For example, if we again use a Markowitz style optimization using only the players from our specific team $T_{C_k}$, where the $k$ subscript indicates that this is the $k^{th}$ round of the draft, we could write the following optimization problem
+
+$$\underset{\mathbf{x}}{\text{argmax}} \left\{\; \max_\mathbf{x} \; \; \mathbf{r}^T \mathbf{x} -\beta \mathbf{x}^T \mathbf{Q} \mathbf{x} \right\}_{\mathbf{x,r, Q} \in T_{C_k}}. \;\;\;\;\;\; (6)$$
+
+Where in equation (6) above, the player vector $\mathbf{x}$, the returns vector $\mathbf{r}$ and covariance matrix $\mathbf{Q}$ are limited to only the entries which are relevant to the players in the current optimal team from the solution of equation (3) in draft round $k$, and $\beta$ is again a risk avoidance parameter. In the equation above, $\mathbf{x}$ is no longer discrete and we will return a player vector with real arguments. In this sense, the solution to the first maximization problem gives tells us how much to "invest" in a particular player for the optimal portfolio. The argument then, is if we can only pick one player, we want to pick the player with the highest investment, which is where the $\text{argmax}$ comes in. This is simply a statement that we will pick the player whose investment is greatest from the solution vector to our optimization problem. 
+
+### Details On The Sub Optimization
+Coming soon
 
 
 ## Binary Integer Programing

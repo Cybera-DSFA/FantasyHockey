@@ -111,7 +111,7 @@ so we may reference them directly in algorithm (1) below.
 1. Choose a value for risk tolerance $\gamma$
 2.  Decide on team size **_MAX_**
 3. **_WHILE $\alpha \neq$ MAX_ DO:**
-    *   Update the set <img src="/tex/4221397c8a5a02a9d784666f47094f17.svg?invert_in_darkmode&sanitize=true" align=middle width=68.74498784999999pt height=24.65753399999998pt/> of players which have been drafted
+    * Update the set <img src="/tex/4221397c8a5a02a9d784666f47094f17.svg?invert_in_darkmode&sanitize=true" align=middle width=68.74498784999999pt height=24.65753399999998pt/> of players which have been drafted
         * Update constraint (5)
     * Solve the maximization problem (3)
         * Using some metric, choose a single player <img src="/tex/a9181dcbb0c785f87c807a62fbca43d5.svg?invert_in_darkmode&sanitize=true" align=middle width=14.15517674999999pt height=14.611878600000017pt/> from the solution of (3)

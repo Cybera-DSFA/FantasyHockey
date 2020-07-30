@@ -155,7 +155,8 @@ def optim_player(scores,
                       min_c = 2,
                       min_rw = 2,
                       min_lw =2,
-                      full_team = False):
+                      full_team = False,
+                     sportnet = False):
     '''
     This function solves the binary linear programming problem 
     max(r^T x - gamma x^T Q x) where r is the average score per game for a player,
@@ -187,13 +188,22 @@ def optim_player(scores,
          # L1 norm here, absolute value is fine as no salaries should be negative.
         constraints.append(cp.norm(S @ x, p=1) <= max_salary)
     
-    constraints = constraints + [cp.sum(x) == team_size,
-                   cp.sum(x[defence]) >=min_d,
-                   cp.sum(x[goalie]) >= min_g,
-                   cp.sum(x[goalie]) <= min_g + 1,
-                   cp.sum(x[center]) >= min_c,
-                   cp.sum(x[right_wingers]) >= min_rw,
-                   cp.sum(x[left_wingers]) >= min_lw] 
+    
+    if sportnet: 
+        forwards = center + right_wingers + left_wingers
+        constraints = constraints + [cp.sum(x) == team_size,
+                   cp.sum(x[defence]) == min_d,
+                   cp.sum(x[goalie]) == min_g,
+                   cp.sum(x[forwards]) >= min_c + min_rw + min_lw
+                   ] 
+    else:
+        constraints = constraints + [cp.sum(x) == team_size,
+                       cp.sum(x[defence]) >=min_d,
+                       cp.sum(x[goalie]) >= min_g,
+                       cp.sum(x[goalie]) <= min_g + 1,
+                       cp.sum(x[center]) >= min_c,
+                       cp.sum(x[right_wingers]) >= min_rw,
+                       cp.sum(x[left_wingers]) >= min_lw] 
                 
     # actually defining our problem 
     prob = cp.Problem(cp.Maximize(ret - gamma*risk),

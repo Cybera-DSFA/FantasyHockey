@@ -132,7 +132,7 @@ def displayTeam(df, team, all_points):
 def ram_selection(players, scores, df, g): 
     ohboy = df[df.player_id.isin(list(scores.iloc[:,players]))]
     playerids = ohboy.groupby('player_id').count().index
-    
+    pid = ohboy.groupby('player_id').count()
     R = np.array(scores[playerids].mean())
     Q = np.array(scores[playerids].cov())
     x = cp.Variable(len(players))
@@ -150,8 +150,8 @@ def ram_selection(players, scores, df, g):
     # Find the index of the player who has the largest proportion of 
     # investment, provided they haven't already been selected 
     # then find the next largest 
-    print(x.value)
-    return np.array(players)[list(x.value.argsort()[-3:][::-1])]
+    print(sorted(x.value)[::-1])
+    return playerids[x.value.argsort()[::-1]]#players[np.array(playerids)[list(x.value.argsort()[::-1])]]
 
 def name_extract(row):
     place = row.index

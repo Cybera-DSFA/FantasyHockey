@@ -65,6 +65,18 @@ What equation 2 represents is a formal statement that the solution to the maximi
 
  This is far from the best solution, and a more sports minded group would invest a great deal of time into finding the "perfect" estimates of the returns and covariance to also incorporate subject matter expertise, but from an exploration and education point of view, this approach is at least reasonable (well... to us... sports layman's), and has the advantage that we don't have to invest too much time in order to calculate this. Certainly - we can always revisit the returns vectors and covariance once we have a working solution. 
 
+ However, to define these quantities formally, we have for the $i^{th}$ player, its element in the returns vector r_i is
+
+ $$ r_i= \frac{1}{N}\sum_{j=1}^{N} p_j$$
+
+ where $N$ is the number of games played, and the the element $p_j$ is the points that player earned in the $j^{th}$ game. Using this notation, our covariance matrix $\mathbf{Q}$ is calculated as
+
+ $$ \mathbf{Q} = \frac{1}{N - 1} \sum_{i=0}^N \left(\mathbf{P} -  \mathbf{I \cdot r} \right) \left(\mathbf{P} -  \mathbf{I \cdot r} \right)^T$$
+
+ where $\mathbf{P}$ is a rectangular matrix of size $h \times N$, where $h$ is the number of players, and is simply the "points matrix", or the table of points each player got in each game, and $\mathbf{I}$ is the identity matrix. 
+
+ What is important to note howeveer in this instance is that _order is important_ . Here we have chosen to index by game number - but an important improvement could be made by indexing this matrix by each game played. This would allow us to view correlations between players across teams more accurately, and is a future step in this project. 
+
  ### Dimensionality and Missing Data
 
  One subtlety of the above approach is that in order to calculate covariance each player needs to play the same amount of games. In other words, we need to have 82 data points (the number of games in an NHL season) for each player we wish to include, for each season that we're including them. This is a bit of a problem, as it is incredibly rare for a player to play every game in a season. So this leaves us with an important question:
@@ -149,3 +161,46 @@ Coming soon
 ## Binary Integer Programing
 Coming soon. 
 
+## SportsNet Fantasy Hockey
+
+In this case, we have a slightly different problem to solve. Rather than solving several instances of an optimization problem using limited resources between players, here everyone is free to choose whatever player they want - subject to division, position, and a points value cap. Formally, 
+
+$$\begin{aligned}
+\text{maximize} & \;\; \mathbf{r}^T \mathbf{x} -\gamma \mathbf{x}^T \mathbf{Q} \mathbf{x} \\
+\text{subject to} & \;\; \sum \mathbf{C} \cdot \mathbf{x} \leq 30 \\
+& \sum_{\text{east goalies}} \mathbf{x} = \sum_{\text{west goalies}} \mathbf{x} = 2 \\
+& \sum_{\text{east forwards}} \mathbf{x} = \sum_{\text{west forwards}} \mathbf{x} = 3 \\ 
+& \sum_{\text{east defence}} \mathbf{x} = \sum_{\text{west defence}} \mathbf{x} = 2 \\
+& \mathbf{x} \in \mathbb{B}
+\end{aligned} $$
+
+where $\mathbf{x}$ is a binary vector of players, $\mathbf{r}$ is our returns vector, $\mathbf{Q}$ is the covariance matrix, $\gamma$ is the risk avoidance parameter and $\mathbf{C}$ is a diagonal matrix of the cost, or points value assigned by SportsNet, associated with each player.
+
+For the SportsNet contest, each player has a value of 1-4, and we have to assemble a team using 30 points or less, as well, we need to make sure we have players from each conference - represented in the additional constraints. Besides those new additions, this is actually an "easier" problem than the draft as we only have to choose one team (and then hope for the best). One thing that should be noted however, is that in this contest the point value system is different. Here, the points are described in the table below 
+
+> Table 2: here is the point value system used to score each player in the Sportsnet fantasy draft
+
+|                    | Goals | Assists | Wins | Shutout |
+|--------------------|-------|---------|------|---------|
+| Centers            |     1 |       1 |  N/A |     N/A |
+| Left/Right Wingers |     1 |       1 |  N/A |     N/A |
+| Defence            |     1 |       1 |  N/A |     N/A |
+| Goalies            |   N/A |     N/A |    2 |       1 |
+
+Here we see that goalies are really only rewarded for winning a game, and a little extra if they win, as compared to our previous example.
+
+### Caveats for Playoff Hockey
+
+In this case, as playoffs are elimination based, it is not favorable for us to choose players from teams that we may expect to lose. In this case, we introduced an artificial _win bias_ into the points scoring system during the optimization by awarding each player an additional 1.5 points for each game they have won. The idea here is that our optimization will now be biased towards teams that tend to win more games, which is ideal for playoff hockey. What should be noted is that formally, we're updating our points vector for each player $\mathbf{p}$ as 
+
+$$\mathbf{p}_{\text{win bias}} = \mathbf{p} + \mathbf{b}$$
+
+where $\mathbf{b}$ is a _bias_ vector with elements defined by
+
+$$b_i = p_i + 1.5 \; \delta_w$$
+
+where $\delta_w$ is the Kroneker delta, defined as 
+
+$$\delta_w = \left\{ \begin{aligned} 1 & \text{ if} & \text{win}  \\ 0 & \text{ if} & \text{loss} \end{aligned} \right.$$
+
+Where our calculations of our mean returns vector and covariance terms are identical, however, now we are using our win-biased points instead. 

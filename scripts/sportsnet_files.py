@@ -9,24 +9,25 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 import re
 
-def generateConferenceLists():
-    with open('../data/processed/teams.json') as f:
-        d = json.load(f)
-    team = pd.Series(d).reset_index()
-    team.columns = ['teamid', 'teamname']
-
-    east = ['Boston Bruins', 'Tampa Bay Lightning', 'Washington Capitals',
+# Probably not the best place to define these...
+east = ['Boston Bruins', 'Tampa Bay Lightning', 'Washington Capitals',
                     'Philadelphia Flyers', 'Pittsburgh Penguins', 'Carolina Hurricanes',
                     'New York Islanders','Toronto Maple Leafs','Columbus Blue Jackets',
                     'Florida Panthers', 'New York Rangers','Montreal Canadiens']
-
-    west=['St. Louis Blues', 'Colorado Avalanche','Vegas Golden Knights',
+west=['St. Louis Blues', 'Colorado Avalanche','Vegas Golden Knights',
                     'Dallas Stars', 'Edmonton Oilers', 'Nashville Predators',
                     'Vancouver Canucks','Calgary Flames', 'Winnipeg Jets', 
                     'Minnesota Wild', 'Arizona Coyotes', 'Chicago Blackhawks']
+
+def generateConferenceLists():
+    with open('../data/processed/teams.json') as f:
+        d = json.load(f)
+    
+    team = pd.Series(d).reset_index()
+    team.columns = ['teamid', 'teamname']
+    
     t = team[team.teamname.isin(east + west)]
-
-
+    
     east_list = list(t[t.teamname.isin(east)].teamid.unique()) 
     west_list = t[t.teamname.isin(west)].teamid.unique()
 

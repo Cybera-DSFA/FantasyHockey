@@ -56,6 +56,18 @@ What equation 2 represents is a formal statement that the solution to the maximi
 
  This is far from the best solution, and a more sports minded group would invest a great deal of time into finding the "perfect" estimates of the returns and covariance to also incorporate subject matter expertise, but from an exploration and education point of view, this approach is at least reasonable (well... to us... sports layman's), and has the advantage that we don't have to invest too much time in order to calculate this. Certainly - we can always revisit the returns vectors and covariance once we have a working solution. 
 
+ However, to define these quantities formally, we have for the <img src="/tex/3def24cf259215eefdd43e76525fb473.svg?invert_in_darkmode&sanitize=true" align=middle width=18.32504519999999pt height=27.91243950000002pt/> player, its element in the returns vector r_i is
+
+ <p align="center"><img src="/tex/45048b77d5af9f1b01e28379bcfec173.svg?invert_in_darkmode&sanitize=true" align=middle width=97.35062699999999pt height=50.04352485pt/></p>
+
+ where <img src="/tex/f9c4988898e7f532b9f826a75014ed3c.svg?invert_in_darkmode&sanitize=true" align=middle width=14.99998994999999pt height=22.465723500000017pt/> is the number of games played, and the the element <img src="/tex/7f131a60c8e7bb2b22f383f7bd49e2c0.svg?invert_in_darkmode&sanitize=true" align=middle width=14.37507554999999pt height=14.15524440000002pt/> is the points that player earned in the <img src="/tex/95291b39ba5d9dba052b40bf07b12cd2.svg?invert_in_darkmode&sanitize=true" align=middle width=20.37223649999999pt height=27.91243950000002pt/> game. Using this notation, our covariance matrix <img src="/tex/61ccc6d099c3b104d8de703a10b20230.svg?invert_in_darkmode&sanitize=true" align=middle width=14.20083224999999pt height=22.55708729999998pt/> is calculated as
+
+ <p align="center"><img src="/tex/0a7e2d76cad69ff4714c522f3b9f45b3.svg?invert_in_darkmode&sanitize=true" align=middle width=270.12137624999997pt height=47.806078649999996pt/></p>
+
+ where <img src="/tex/384591906555413c452c93e493b2d4ec.svg?invert_in_darkmode&sanitize=true" align=middle width=12.92230829999999pt height=22.55708729999998pt/> is a rectangular matrix of size <img src="/tex/0d5fa05b4ddb8e121849096175e1d42c.svg?invert_in_darkmode&sanitize=true" align=middle width=44.56229579999999pt height=22.831056599999986pt/>, where <img src="/tex/2ad9d098b937e46f9f58968551adac57.svg?invert_in_darkmode&sanitize=true" align=middle width=9.47111549999999pt height=22.831056599999986pt/> is the number of players, and is simply the "points matrix", or the table of points each player got in each game, and <img src="/tex/d8471e559d932f20f66bec32f6002e08.svg?invert_in_darkmode&sanitize=true" align=middle width=7.168923299999991pt height=22.55708729999998pt/> is the identity matrix. 
+
+ What is important to note howeveer in this instance is that _order is important_ . Here we have chosen to index by game number - but an important improvement could be made by indexing this matrix by each game played. This would allow us to view correlations between players across teams more accurately, and is a future step in this project. 
+
  ### Dimensionality and Missing Data
 
  One subtlety of the above approach is that in order to calculate covariance each player needs to play the same amount of games. In other words, we need to have 82 data points (the number of games in an NHL season) for each player we wish to include, for each season that we're including them. This is a bit of a problem, as it is incredibly rare for a player to play every game in a season. So this leaves us with an important question:
@@ -129,3 +141,39 @@ Coming soon
 ## Binary Integer Programing
 Coming soon. 
 
+## SportsNet Fantasy Hockey
+
+In this case, we have a slightly different problem to solve. Rather than solving several instances of an optimization problem using limited resources between players, here everyone is free to choose whatever player they want - subject to division, position, and a points value cap. Formally, 
+
+<p align="center"><img src="/tex/afdc4d872b047c7a64bbf8e69c7b89c3.svg?invert_in_darkmode&sanitize=true" align=middle width=306.73310745pt height=212.46262124999996pt/></p>
+
+where <img src="/tex/b0ea07dc5c00127344a1cad40467b8de.svg?invert_in_darkmode&sanitize=true" align=middle width=9.97711604999999pt height=14.611878600000017pt/> is a binary vector of players, <img src="/tex/d303788ea8b3ff5079316016e37bf19e.svg?invert_in_darkmode&sanitize=true" align=middle width=7.785368249999991pt height=14.611878600000017pt/> is our returns vector, <img src="/tex/61ccc6d099c3b104d8de703a10b20230.svg?invert_in_darkmode&sanitize=true" align=middle width=14.20083224999999pt height=22.55708729999998pt/> is the covariance matrix, <img src="/tex/11c596de17c342edeed29f489aa4b274.svg?invert_in_darkmode&sanitize=true" align=middle width=9.423880949999988pt height=14.15524440000002pt/> is the risk avoidance parameter and <img src="/tex/12d3ebda1a212bd89197298f60cf3ce1.svg?invert_in_darkmode&sanitize=true" align=middle width=13.652895299999988pt height=22.55708729999998pt/> is a diagonal matrix of the cost, or points value assigned by SportsNet, associated with each player.
+
+For the SportsNet contest, each player has a value of 1-4, and we have to assemble a team using 30 points or less, as well, we need to make sure we have players from each conference - represented in the additional constraints. Besides those new additions, this is actually an "easier" problem than the draft as we only have to choose one team (and then hope for the best). One thing that should be noted however, is that in this contest the point value system is different. Here, the points are described in the table below 
+
+> Table 2: here is the point value system used to score each player in the Sportsnet fantasy draft
+
+|                    | Goals | Assists | Wins | Shutout |
+|--------------------|-------|---------|------|---------|
+| Centers            |     1 |       1 |  N/A |     N/A |
+| Left/Right Wingers |     1 |       1 |  N/A |     N/A |
+| Defence            |     1 |       1 |  N/A |     N/A |
+| Goalies            |   N/A |     N/A |    2 |       1 |
+
+Here we see that goalies are really only rewarded for winning a game, and a little extra if they win, as compared to our previous example.
+
+### Caveats for Playoff Hockey
+
+In this case, as playoffs are elimination based, it is not favorable for us to choose players from teams that we may expect to lose. In this case, we introduced an artificial _win bias_ into the points scoring system during the optimization by awarding each player an additional 1.5 points for each game they have won. The idea here is that our optimization will now be biased towards teams that tend to win more games, which is ideal for playoff hockey. What should be noted is that formally, we're updating our points vector for each player <img src="/tex/980fcd4213d7b5d2ffcc82ec78c27ead.svg?invert_in_darkmode&sanitize=true" align=middle width=10.502226899999991pt height=14.611878600000017pt/> as 
+
+<p align="center"><img src="/tex/726bdaa9a17577ca84e630d9a2869865.svg?invert_in_darkmode&sanitize=true" align=middle width=121.87418429999998pt height=14.611878599999999pt/></p>
+
+where <img src="/tex/a10ec92d13e76a02b538967f6b90b345.svg?invert_in_darkmode&sanitize=true" align=middle width=10.502226899999991pt height=22.831056599999986pt/> is a _bias_ vector with elements defined by
+
+<p align="center"><img src="/tex/b7226844f0776ee9c35432c79840ea6d.svg?invert_in_darkmode&sanitize=true" align=middle width=110.9757825pt height=14.611878599999999pt/></p>
+
+where <img src="/tex/027542eeba61a7e7fa1834eb3fe5f62a.svg?invert_in_darkmode&sanitize=true" align=middle width=17.12526254999999pt height=22.831056599999986pt/> is the Kroneker delta, defined as 
+
+<p align="center"><img src="/tex/68404186ff04d90f97fb2bb6a3864665.svg?invert_in_darkmode&sanitize=true" align=middle width=118.58643224999999pt height=49.315569599999996pt/></p>
+
+Where our calculations of our mean returns vector and covariance terms are identical, however, now we are using our win-biased points instead. 

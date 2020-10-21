@@ -71,7 +71,7 @@ What equation 2 represents is a formal statement that the solution to the maximi
 
  where $N$ is the number of games played, and the the element $p_j$ is the points that player earned in the $j^{th}$ game. Using this notation, our covariance matrix $\mathbf{Q}$ is calculated as
 
- $$ \mathbf{Q} = \frac{1}{N - 1} \sum_{i=0}^N \left(\mathbf{P} -  \mathbf{I \cdot r} \right) \left(\mathbf{P} -  \mathbf{I \cdot r} \right)^T$$
+ $$ \mathbf{Q} = \frac{1}{N - 1} \left(\mathbf{P} -  \mathbf{I \cdot r} \right) \left(\mathbf{P} -  \mathbf{I \cdot r} \right)^T$$
 
  where $\mathbf{P}$ is a rectangular matrix of size $h \times N$, where $h$ is the number of players, and is simply the "points matrix", or the table of points each player got in each game, and $\mathbf{I}$ is the identity matrix. 
 
